@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MSAR Premed Course Requirements 2026</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --navy:   #003366;
+      --blue:   #1a5fa8;
+      --light:  #e8f0fa;
+      --green:  #2e7d32;
+      --red:    #c62828;
+      --yellow: #f57f17;
+      --grey:   #757575;
+      --border: #d0d7e3;
+      --bg:     #f5f7fc;
+    }
+
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+           background: var(--bg); color: #222; font-size: 14px; }
+
+    /* ── Header ── */
+    header {
+      background: var(--navy); color: #fff;
+      padding: 16px 24px;
+      display: flex; align-items: center; gap: 16px;
+    }
+    header h1 { font-size: 18px; font-weight: 700; }
+    header p  { font-size: 12px; opacity: .7; margin-top: 2px; }
+
+    /* ── Layout ── */
+    .container { max-width: 1400px; margin: 0 auto; padding: 20px 16px; }
+
+    /* ── Filter panel ── */
+    .filter-panel {
+      background: #fff; border: 1px solid var(--border);
+      border-radius: 8px; padding: 16px; margin-bottom: 16px;
+    }
+    .filter-panel h2 { font-size: 13px; font-weight: 600; color: var(--navy);
+                       text-transform: uppercase; letter-spacing: .05em; margin-bottom: 12px; }
+
+    .filter-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 10px;
+    }
+    .filter-group { display: flex; flex-direction: column; gap: 4px; }
+    .filter-group label { font-size: 11px; font-weight: 600; color: var(--grey);
+                          text-transform: uppercase; letter-spacing: .04em; }
+    .filter-group select {
+      border: 1px solid var(--border); border-radius: 6px;
+      padding: 6px 8px; font-size: 13px; background: #fff;
+      cursor: pointer; outline: none; color: #222;
+    }
+    .filter-group select:focus { border-color: var(--blue); }
+
+    .filter-actions {
+      margin-top: 12px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+    }
+    .btn-clear {
+      background: none; border: 1px solid var(--border); border-radius: 6px;
+      padding: 6px 14px; font-size: 13px; cursor: pointer; color: var(--grey);
+    }
+    .btn-clear:hover { border-color: var(--blue); color: var(--blue); }
+
+    /* ── Legend ── */
+    .legend {
+      display: flex; gap: 16px; align-items: center; flex-wrap: wrap;
+      font-size: 12px;
+    }
+    .legend-item { display: flex; align-items: center; gap: 5px; }
+    .icon-yes    { color: var(--green);  font-size: 16px; font-weight: 700; }
+    .icon-no     { color: var(--red);    font-size: 16px; font-weight: 700; }
+    .icon-cbc    { color: var(--yellow); font-size: 18px; line-height: 1; }
+    .icon-none   { color: var(--grey); }
+
+    /* ── Results bar ── */
+    .results-bar {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 8px; flex-wrap: wrap; gap: 8px;
+    }
+    .results-bar span { font-size: 13px; color: var(--grey); }
+    .results-bar strong { color: var(--navy); }
+
+    /* ── Table ── */
+    .table-wrapper {
+      background: #fff; border: 1px solid var(--border);
+      border-radius: 8px; overflow: auto; max-height: 70vh;
+    }
+    table { border-collapse: collapse; width: 100%; min-width: 900px; }
+    thead th {
+      background: var(--navy); color: #fff; text-align: left;
+      padding: 10px 12px; font-size: 12px; font-weight: 600;
+      letter-spacing: .03em; position: sticky; top: 0; z-index: 2;
+      white-space: nowrap;
+    }
+    thead th.icon-col { text-align: center; min-width: 70px; }
+
+    tbody tr { border-bottom: 1px solid var(--border); }
+    tbody tr:hover { background: var(--light); }
+    tbody tr.school-first { border-top: 2px solid var(--border); }
+
+    td { padding: 8px 12px; vertical-align: top; font-size: 13px; }
+    td.state-cell { font-weight: 700; color: var(--navy); white-space: nowrap; }
+    td.school-cell { font-size: 12px; color: #444; max-width: 200px; }
+    td.course-cell { font-weight: 600; }
+    td.class-cell  { font-family: monospace; font-size: 12px;
+                     background: var(--light); border-radius: 4px;
+                     padding: 3px 6px; white-space: nowrap; }
+    td.req-cell    { white-space: nowrap; font-size: 12px; }
+    td.req-required { color: var(--red); font-weight: 600; }
+    td.req-recommended { color: var(--blue); }
+    td.info-cell   { font-size: 12px; color: #555; max-width: 220px; line-height: 1.4; }
+    td.credits-cell { text-align: center; font-weight: 600; white-space: nowrap; }
+    td.icon-cell   { text-align: center; }
+
+    .icon-badge {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 26px; height: 26px; border-radius: 50%;
+      font-size: 13px; font-weight: 700; cursor: default;
+    }
+    .icon-badge.yes  { background: #e8f5e9; color: var(--green); }
+    .icon-badge.no   { background: #ffebee; color: var(--red); }
+    .icon-badge.cbc  { background: #fff8e1; color: var(--yellow); }
+    .icon-badge.none { background: #f5f5f5; color: #bbb; font-size: 11px; }
+
+    /* Tooltip for icon notes */
+    .has-tooltip { position: relative; }
+    .has-tooltip[data-tip]:hover::after {
+      content: attr(data-tip);
+      position: absolute; bottom: calc(100% + 6px); left: 50%;
+      transform: translateX(-50%);
+      background: #333; color: #fff; font-size: 11px;
+      padding: 6px 10px; border-radius: 6px;
+      white-space: pre-wrap; min-width: 180px; max-width: 280px;
+      z-index: 100; pointer-events: none; line-height: 1.4;
+    }
+
+    /* ── Empty state ── */
+    .empty-state {
+      text-align: center; padding: 48px 24px; color: var(--grey);
+    }
+    .empty-state h3 { font-size: 16px; margin-bottom: 8px; }
+
+    /* ── Note ribbon ── */
+    .note { font-size: 11px; color: var(--grey); margin-top: 2px; line-height: 1.3; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>MSAR Premed Course Requirements</h1>
+    <p>2026 · Source: AAMC Medical School Admission Requirements · 166 schools</p>
+  </div>
+</header>
+
+<div class="container">
+
+  <!-- Filter panel -->
+  <div class="filter-panel">
+    <h2>Filter</h2>
+    <div class="filter-grid">
+      <div class="filter-group">
+        <label>State / Province</label>
+        <select id="f-state"><option value="">All</option></select>
+      </div>
+      <div class="filter-group">
+        <label>Medical School</label>
+        <select id="f-school"><option value="">All Schools</option></select>
+      </div>
+      <div class="filter-group">
+        <label>Course</label>
+        <select id="f-course"><option value="">All Courses</option></select>
+      </div>
+      <div class="filter-group">
+        <label>Subject Area (Class)</label>
+        <select id="f-class"><option value="">All Areas</option></select>
+      </div>
+      <div class="filter-group">
+        <label>Required / Recommended</label>
+        <select id="f-req">
+          <option value="">Both</option>
+          <option value="Required">Required only</option>
+          <option value="Recommended">Recommended only</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label>Lab Required?</label>
+        <select id="f-lab">
+          <option value="">Any</option>
+          <option value="Yes">Yes</option>
+          <option value="No">No</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label>Pass / Fail Accepted?</label>
+        <select id="f-pf">
+          <option value="">Any</option>
+          <option value="Yes">Yes</option>
+          <option value="No">No</option>
+          <option value="CbC">Case-by-Case</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label>AP Credit Accepted?</label>
+        <select id="f-ap">
+          <option value="">Any</option>
+          <option value="Yes">Yes</option>
+          <option value="No">No</option>
+          <option value="CbC">Case-by-Case</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label>Online Course OK?</label>
+        <select id="f-online">
+          <option value="">Any</option>
+          <option value="Yes">Yes</option>
+          <option value="No">No</option>
+          <option value="CbC">Case-by-Case</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label>Community College OK?</label>
+        <select id="f-cc">
+          <option value="">Any</option>
+          <option value="Yes">Yes</option>
+          <option value="No">No</option>
+          <option value="CbC">Case-by-Case</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="filter-actions">
+      <button class="btn-clear" id="btn-clear">✕ Clear All Filters</button>
+      <div class="legend">
+        <span class="legend-item"><span class="icon-badge yes">✓</span> Yes / Accepted</span>
+        <span class="legend-item"><span class="icon-badge no">✗</span> No / Not Accepted</span>
+        <span class="legend-item"><span class="icon-badge cbc">●</span> Case-by-Case</span>
+        <span class="legend-item"><span class="icon-badge none">—</span> Not Specified</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Results -->
+  <div class="results-bar">
+    <span id="results-count">Loading…</span>
+  </div>
+
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr>
+          <th>State</th>
+          <th>Medical School</th>
+          <th>Course</th>
+          <th>Class</th>
+          <th>Req / Rec</th>
+          <th>Additional Info</th>
+          <th>Credits</th>
+          <th class="icon-col">Lab?</th>
+          <th class="icon-col">Pass/Fail</th>
+          <th class="icon-col">AP Credit</th>
+          <th class="icon-col">Online</th>
+          <th class="icon-col">Comm. College</th>
+        </tr>
+      </thead>
+      <tbody id="tbody"></tbody>
+    </table>
+    <div id="empty-state" class="empty-state" style="display:none">
+      <h3>No results match your filters</h3>
+      <p>Try clearing one or more filters.</p>
+    </div>
+  </div>
+
+</div>
+
+<script>
+let ALL = [];
+
+const SEL = {
+  state:  document.getElementById('f-state'),
+  school: document.getElementById('f-school'),
+  course: document.getElementById('f-course'),
+  cls:    document.getElementById('f-class'),
+  req:    document.getElementById('f-req'),
+  lab:    document.getElementById('f-lab'),
+  pf:     document.getElementById('f-pf'),
+  ap:     document.getElementById('f-ap'),
+  online: document.getElementById('f-online'),
+  cc:     document.getElementById('f-cc'),
+};
+
+function getFilters() {
+  return {
+    state:               SEL.state.value,
+    medical_school:      SEL.school.value,
+    course:              SEL.course.value,
+    class:               SEL.cls.value,
+    required_recommended: SEL.req.value,
+    lab:                 SEL.lab.value,
+    pass_fail:           SEL.pf.value,
+    ap_credit:           SEL.ap.value,
+    online:              SEL.online.value,
+    community_college:   SEL.cc.value,
+  };
+}
+
+function applyFilters() {
+  const f = getFilters();
+  const rows = ALL.filter(r => {
+    if (f.state               && r.state               !== f.state)               return false;
+    if (f.medical_school      && r.medical_school       !== f.medical_school)      return false;
+    if (f.course              && r.course               !== f.course)              return false;
+    if (f.class               && r.class                !== f.class)               return false;
+    if (f.required_recommended && r.required_recommended !== f.required_recommended) return false;
+    if (f.lab                 && r.lab                  !== f.lab)                 return false;
+    if (f.pass_fail           && r.pass_fail             !== f.pass_fail)           return false;
+    if (f.ap_credit           && r.ap_credit             !== f.ap_credit)           return false;
+    if (f.online              && r.online                !== f.online)              return false;
+    if (f.community_college   && r.community_college     !== f.community_college)   return false;
+    return true;
+  });
+
+  renderTable(rows);
+  updateCascadeDropdowns(rows, f);
+  document.getElementById('results-count').innerHTML =
+    `Showing <strong>${rows.length}</strong> of <strong>${ALL.length}</strong> course requirements`;
+}
+
+function updateCascadeDropdowns(filteredRows, f) {
+  // State dropdown: always shows all states
+  refreshDropdown(SEL.state, unique(ALL, 'state'), f.state);
+
+  // School: filtered by state selection
+  const schoolBase = f.state ? ALL.filter(r => r.state === f.state) : ALL;
+  refreshDropdown(SEL.school, unique(schoolBase, 'medical_school'), f.medical_school);
+
+  // Course: filtered by state+school selection
+  const courseBase = filteredRows;
+  refreshDropdown(SEL.course, unique(courseBase, 'course'), f.course);
+
+  // Class: filtered by current selection
+  refreshDropdown(SEL.cls, unique(filteredRows, 'class'), f.class);
+}
+
+function unique(rows, key) {
+  return [...new Set(rows.map(r => r[key]).filter(Boolean))].sort();
+}
+
+function refreshDropdown(sel, values, currentVal) {
+  const placeholder = sel.options[0].textContent;
+  sel.innerHTML = `<option value="">${placeholder}</option>`;
+  values.forEach(v => {
+    const opt = document.createElement('option');
+    opt.value = v; opt.textContent = v;
+    if (v === currentVal) opt.selected = true;
+    sel.appendChild(opt);
+  });
+}
+
+function icon(value, notes) {
+  const cfg = {
+    Yes:  { cls: 'yes',  sym: '✓' },
+    No:   { cls: 'no',   sym: '✗' },
+    CbC:  { cls: 'cbc',  sym: '●' },
+    None: { cls: 'none', sym: '—' },
+  };
+  const c = cfg[value] || cfg.None;
+  const label = value === 'CbC' ? 'Case-by-Case' : (value || 'Not specified');
+  const tip   = notes ? `${label}\n\n${notes.trim()}` : label;
+  return `<span class="icon-badge ${c.cls} has-tooltip" data-tip="${escHtml(tip)}">${c.sym}</span>`;
+}
+
+function escHtml(s) {
+  return String(s)
+    .replace(/&/g,'&amp;').replace(/"/g,'&quot;')
+    .replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function renderTable(rows) {
+  const tbody = document.getElementById('tbody');
+  const empty = document.getElementById('empty-state');
+
+  if (rows.length === 0) {
+    tbody.innerHTML = '';
+    empty.style.display = '';
+    return;
+  }
+  empty.style.display = 'none';
+
+  let html = '';
+  let prevSchool = null;
+
+  rows.forEach(r => {
+    const isNewSchool = r.medical_school !== prevSchool;
+    prevSchool = r.medical_school;
+
+    const reqCls = r.required_recommended === 'Required'
+      ? 'req-cell req-required'
+      : 'req-cell req-recommended';
+
+    html += `<tr${isNewSchool ? ' class="school-first"' : ''}>
+      <td class="state-cell">${escHtml(r.state)}</td>
+      <td class="school-cell">${escHtml(r.medical_school)}</td>
+      <td class="course-cell">${escHtml(r.course)}</td>
+      <td><span class="class-cell">${escHtml(r.class)}</span></td>
+      <td class="${reqCls}">${escHtml(r.required_recommended)}</td>
+      <td class="info-cell">${escHtml(r.additional_info)}</td>
+      <td class="credits-cell">${escHtml(r.credit_hours)}</td>
+      <td class="icon-cell">${icon(r.lab,             r.lab_notes)}</td>
+      <td class="icon-cell">${icon(r.pass_fail,        r.pass_fail_notes)}</td>
+      <td class="icon-cell">${icon(r.ap_credit,        r.ap_credit_notes)}</td>
+      <td class="icon-cell">${icon(r.online,           r.online_notes)}</td>
+      <td class="icon-cell">${icon(r.community_college,r.community_college_notes)}</td>
+    </tr>`;
+  });
+
+  tbody.innerHTML = html;
+}
+
+function populateInitial() {
+  refreshDropdown(SEL.state,  unique(ALL, 'state'),           '');
+  refreshDropdown(SEL.school, unique(ALL, 'medical_school'),  '');
+  refreshDropdown(SEL.course, unique(ALL, 'course'),          '');
+  refreshDropdown(SEL.cls,    unique(ALL, 'class'),           '');
+}
+
+// Wire up all filter selects
+Object.values(SEL).forEach(sel => sel.addEventListener('change', applyFilters));
+
+document.getElementById('btn-clear').addEventListener('click', () => {
+  Object.values(SEL).forEach(sel => sel.value = '');
+  applyFilters();
+});
+
+// Boot
+fetch('data.json')
+  .then(r => r.json())
+  .then(data => {
+    ALL = data;
+    populateInitial();
+    applyFilters();
+  })
+  .catch(() => {
+    document.getElementById('results-count').textContent = 'Error loading data.json';
+  });
+</script>
+</body>
+</html>

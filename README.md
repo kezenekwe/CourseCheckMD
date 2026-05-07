@@ -4,6 +4,14 @@ An interactive browser tool for exploring the 2026 AAMC Medical School Admission
 
 ---
 
+## Current Status: MVP (Prototype)
+
+The current build is a fully static prototype — no server, no auth, no database. It is intentionally simple and runs entirely in the browser.
+
+The [recommended next stack](#recommended-next-stack) section below documents the architecture for a production version with user accounts and institutional access.
+
+---
+
 ## Project Files
 
 | File | Purpose |
@@ -142,6 +150,53 @@ The AAMC PDF stores the five policy columns (Lab?, Pass/Fail, etc.) as embedded 
    - Insufficient colour signal → `"None"`
 
    Row-to-image matching uses fuzzy position lookup (±3 pt tolerance) to handle sub-pixel rounding differences between pdfplumber's table rows and its image coordinate list.
+
+---
+
+## Recommended Next Stack
+
+When adding user accounts, saved searches, and institutional (B2B) access, the following stack is recommended. It prioritises fewer moving parts, good documentation, and avoiding premature complexity.
+
+### Overview
+
+```
+GitHub → Vercel (Next.js)
+              ├── /app        React UI  (current filters, ported from index.html)
+              ├── /api        Auth callbacks, saved-search endpoints
+              └── Supabase    Postgres (course data + user data) + Auth
+```
+
+### Layer-by-layer
+
+| Layer | Choice | Why |
+|-------|--------|-----|
+| **Frontend** | [Next.js](https://nextjs.org) (React) | Routing, SSR, and API routes in one repo. The existing vanilla JS filtering logic ports directly to React. Massive ecosystem and docs. |
+| **Backend** | Next.js API Routes | No separate server needed. Auth callbacks and data endpoints live alongside the UI in the same deploy. |
+| **Database** | [Supabase](https://supabase.com) (hosted Postgres) | Handles course data, user data, and org/institution relationships in one place. Free tier is sufficient for early B2B. Auto-generated REST API. |
+| **Auth** | Supabase Auth | Built into Supabase — email/password, magic link, and OAuth. Wired to row-level security on the database. Swap for [Clerk](https://clerk.com) if university SSO/SAML is required. |
+| **Hosting** | [Vercel](https://vercel.com) | First-party Next.js support. Deploy on `git push`. Global CDN, automatic SSL, preview URLs on every PR. |
+
+### Tradeoffs
+
+| You gain | You give up |
+|----------|------------|
+| User accounts and saved data | Zero-dependency simplicity of the current build |
+| Institutional multi-user support | The app currently works fully offline |
+| A real CI/CD deployment pipeline | A single HTML file you can email to anyone |
+
+### What to avoid
+
+- **Separate Express / Django / FastAPI backend** — unnecessary for this app's complexity. Next.js API routes are sufficient.
+- **MongoDB** — the data is relational (school → courses → requirements). A document store adds complexity with no benefit.
+- **AWS / GCP directly** — the ops overhead isn't justified until you have paying customers who require it.
+- **Custom auth** — session management, password hashing, and token rotation are solved problems. Use Supabase Auth or Clerk.
+
+### Migration path
+
+1. Port `index.html` to a Next.js page — the filtering logic is already written.
+2. Load `data.json` from Supabase instead of a local file fetch.
+3. Add Supabase Auth for login.
+4. Add a saved-searches table and advisor dashboard.
 
 ---
 
